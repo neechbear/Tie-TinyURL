@@ -175,11 +175,21 @@ Tie::TinyURL - Tied interface to TinyURL.com
  use strict;
  use Tie::TinyURL;
  
+ my %url;
+ tie %url, "Tie::TinyURL";
+ 
+ my $tinyurl = $url{"http://www.bbc.co.uk"};
+ my $url = $url{$tinyurl};
+ print "$tinyurl => $url\n";
+ 
 =head1 DESCRIPTION
+
+This module provides a very basic tied interface to the TinyURL.com
+web service.
 
 =head1 SEE ALSO
 
-L<WWW::Shorten::TinyURL>
+L<WWW::Shorten::TinyURL>, L<http://www.tinyurl.com>
 
 =head1 VERSION
 
