@@ -15,7 +15,7 @@ $build = Module::Build->new(
 
 		requires => {
 			'Carp'           => 0, # 1.04
-			'URI'            => 0,
+			'LWP::UserAgent' => 0,
 		},
 
 		recommends => {
