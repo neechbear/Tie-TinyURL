@@ -1,6 +1,6 @@
 ############################################################
 #
-#   $Id: TinyURL.pm 508 2006-05-26 15:19:36Z nicolaw $
+#   $Id$
 #   Tie::TinyURL - Tied interface to TinyURL.com
 #
 #   Copyright 2006 Nicola Worthington
@@ -33,7 +33,7 @@ $DEBUG = $ENV{DEBUG} ? 1 : 0;
 
 $UA = LWP::UserAgent->new(
 		timeout => 20,
-		agent => __PACKAGE__ . ' $Id: TinyURL.pm 497 2006-05-24 16:35:59Z nicolaw $',
+		agent => __PACKAGE__ . ' $Id$',
 	#	agent => 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) '.
 	#			'Gecko/20050718 Firefox/1.0.4 (Debian package 1.0.4-2sarge1)',
 		max_redirect => 0,
@@ -193,7 +193,7 @@ L<WWW::Shorten::TinyURL>, L<http://www.tinyurl.com>
 
 =head1 VERSION
 
-$Id: TinyURL.pm 508 2006-05-26 15:19:36Z nicolaw $
+$Id$
 
 =head1 AUTHOR
 

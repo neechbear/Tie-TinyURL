@@ -1,4 +1,4 @@
-# $Id: 11pod_coverage.t 508 2006-05-26 15:19:36Z nicolaw $
+# $Id$
 
 use Test::More;
 eval "use Test::Pod::Coverage 1.00";
