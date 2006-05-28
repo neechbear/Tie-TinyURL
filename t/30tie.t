@@ -10,10 +10,10 @@ use Tie::TinyURL qw();
 my %url;
 tie %url, 'Tie::TinyURL';
 
-use Data::Dumper;
-print Dumper(\%url);
-
-print "$url{'http://tinyurl.com/6'}\n";
+warn "http://tinyurl.com/6 => $url{'http://tinyurl.com/6'}\n";
+warn "http://www.tfb.net/ => $url{'http://www.tfb.net/'}\n";
+warn "exists http://tinyurl.com/6 => ". exists($url{'http://tinyurl.com/6'}) ."\n";
+warn "exists http://tiEFfj34pgj3q => ". exists($url{'http://tiEFfj34pgj3q'}) ."\n";
 
 1;
 

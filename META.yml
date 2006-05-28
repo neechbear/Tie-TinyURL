@@ -1,9 +1,9 @@
 ---
 name: Tie-TinyURL
-version: 1.13
+version: 0.01
 author:
-  - 'brian d foy, C<< <bdfoy@cpan.org> >>'
-abstract: Cycle through a list of values via a scalar.
+  - Nicola Worthington <nicolaw@cpan.org>
+abstract: Tied interface to TinyURL.com
 license: open_source
 requires:
   Carp: 0
@@ -16,5 +16,5 @@ recommends:
 provides:
   Tie::TinyURL:
     file: lib/Tie/TinyURL.pm
-    version: 1.13
+    version: 0.01
 generated_by: Module::Build version 0.2611

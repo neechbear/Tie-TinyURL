@@ -26,10 +26,23 @@ use strict;
 use LWP::UserAgent qw();
 use Carp qw(croak carp);
 
-use vars qw($VERSION $DEBUG);
+use vars qw($VERSION $DEBUG $UA);
 
 $VERSION = '0.01' || sprintf('%d', q$Revision$ =~ /(\d+)/g);
 $DEBUG = $ENV{DEBUG} ? 1 : 0;
+
+$UA = LWP::UserAgent->new(
+		timeout => 20,
+		agent => __PACKAGE__ . ' $Id: TinyURL.pm 497 2006-05-24 16:35:59Z nicolaw $',
+	#	agent => 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) '.
+	#			'Gecko/20050718 Firefox/1.0.4 (Debian package 1.0.4-2sarge1)',
+		max_redirect => 0,
+	);
+$UA->env_proxy;
+$UA->max_size(1024*100);
+
+sub UNTIE {}
+sub DESTROY {}
 
 sub TIEHASH {
 	my $class = shift;
@@ -39,7 +52,15 @@ sub TIEHASH {
 }
 
 sub FETCH {
+	TRACE('FETCH()');
 	my $self = shift;
+	my $url = shift;
+
+	TRACE("\$url = '$url'");
+	return unless defined $url && length($url);
+	return $self->{seen}->{$url} if exists $self->{seen}->{$url};
+	return $self->_retrieve($url) if _isTinyURL($url);
+	return $self->_store($url);
 }
 
 sub STORE {
@@ -48,18 +69,24 @@ sub STORE {
 	DUMP('@_',\@_);
 }
 
-sub UNTIE {
-}
-
-sub DESTROY {
-}
-
 sub DELETE {
 	my $self = shift;
+	my $url = shift;
+
+	if (defined $url && exists $self->{seen}->{$url}) {
+		delete $self->{seen}->{$self->{seen}->{$url}};
+		delete $self->{seen}->{$url};
+		return 1;
+	}
+	return 0;
 }
 
 sub EXISTS {
 	my $self = shift;
+	my $url = shift;
+
+	return 0 if !defined($url) || !exists($self->{seen}->{$url});
+	return 1;
 }
 
 sub FIRSTKEY {
@@ -71,6 +98,54 @@ sub NEXTKEY {
 
 sub SCALAR {
 }
+
+
+
+sub _isTinyURL {
+	return $_[0] =~ /^http:\/\/(?:www\.)?tinyurl\.com\/[a-zA-Z0-9]+$/i;
+}
+
+sub _retrieve {
+	TRACE('_retrieve()');
+	my $self = shift;
+	my $tinyurl = shift;
+
+	my $response = $UA->get($tinyurl);
+	my $url = $response->header('location') || undef;
+	if ($url) {
+		$self->{seen}->{$tinyurl} = $url;
+		$self->{seen}->{$url} = $tinyurl;
+	}
+
+	return $url;
+}
+
+sub _store {
+	TRACE('_store()');
+	my $self = shift;
+	my $url = shift;
+
+	my $tinyurl = undef;
+	my $response = $UA->post(
+						'http://tinyurl.com/create.php',
+						[('url',$url)]
+					);
+
+	if ($response->is_success) {
+		if ($response->content =~ m|<input\s+type=hidden\s+name=tinyurl\s+
+						value="(http://tinyurl.com/[a-zA-Z0-9]+)">|x) {
+			$tinyurl = $1;
+			$self->{seen}->{$url} = $tinyurl;
+			$self->{seen}->{$tinyurl} = $url;
+		} else {
+			TRACE("Couldn't extract tinyurl");
+			#DUMP("Content",$response->content);
+		}
+	}
+
+	return $tinyurl;
+}
+
 
 sub TRACE {
 	return unless $DEBUG;
@@ -85,7 +160,9 @@ sub DUMP {
 	}
 }
 
+
 1;
+
 
 =pod
 
