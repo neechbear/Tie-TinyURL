@@ -1,0 +1,10 @@
+<SOFTPKG NAME="Tie-TinyURL" VERSION="0,02,0,0">
+    <TITLE>Tie-TinyURL</TITLE>
+    <ABSTRACT>Tied interface to TinyURL.com</ABSTRACT>
+    <AUTHOR>Nicola Worthington &lt;nicolaw@cpan.org&gt;</AUTHOR>
+    <IMPLEMENTATION>
+        <DEPENDENCY NAME="LWP-UserAgent" VERSION="0,0,0,0" />
+        <DEPENDENCY NAME="Carp" VERSION="0,0,0,0" />
+        <CODEBASE HREF="PPM-Tie-TinyURL-0.02.tar.gz" />
+    </IMPLEMENTATION>
+</SOFTPKG>
