@@ -26,28 +26,34 @@ use strict;
 use LWP::UserAgent qw();
 use Carp qw(croak carp);
 
-use vars qw($VERSION $DEBUG $UA);
+use vars qw($VERSION $DEBUG);
 
-$VERSION = '0.01' || sprintf('%d', q$Revision$ =~ /(\d+)/g);
+$VERSION = '0.02' || sprintf('%d', q$Revision$ =~ /(\d+)/g);
 $DEBUG = $ENV{DEBUG} ? 1 : 0;
-
-$UA = LWP::UserAgent->new(
-		timeout => 20,
-		agent => __PACKAGE__ . ' $Id$',
-	#	agent => 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) '.
-	#			'Gecko/20050718 Firefox/1.0.4 (Debian package 1.0.4-2sarge1)',
-		max_redirect => 0,
-	);
-$UA->env_proxy;
-$UA->max_size(1024*100);
 
 sub UNTIE {}
 sub DESTROY {}
 
 sub TIEHASH {
 	my $class = shift;
-	my $self = { args => [ (@_) ], seen => {} };
+
+	my $self = {
+			args => ( @_ % 2 ? [ @_ ] : { @_ } ),
+			seen => {},
+			ua => LWP::UserAgent->new(
+					timeout => 20,
+					agent => __PACKAGE__ . ' $Id$',
+					max_redirect => 0,
+				),
+		};
+
+	$self->{ua}->env_proxy;
+	$self->{ua}->max_size(1024*100);
+	$self->{ua}->timeout($self->{args}->{timeout}) if
+		ref($self->{args}) eq 'HASH' && defined($self->{args}->{timeout});
+
 	bless $self, $class;
+	DUMP('$self',$self);
 	return $self;
 }
 
@@ -90,7 +96,6 @@ sub EXISTS {
 }
 
 sub FIRSTKEY {
-	my $self = shift;
 }
 
 sub NEXTKEY {
@@ -98,8 +103,6 @@ sub NEXTKEY {
 
 sub SCALAR {
 }
-
-
 
 sub _isTinyURL {
 	return $_[0] =~ /^http:\/\/(?:www\.)?tinyurl\.com\/[a-zA-Z0-9]+$/i;
@@ -110,7 +113,7 @@ sub _retrieve {
 	my $self = shift;
 	my $tinyurl = shift;
 
-	my $response = $UA->get($tinyurl);
+	my $response = $self->{ua}->get($tinyurl);
 	my $url = $response->header('location') || undef;
 	if ($url) {
 		$self->{seen}->{$tinyurl} = $url;
@@ -126,7 +129,7 @@ sub _store {
 	my $url = shift;
 
 	my $tinyurl = undef;
-	my $response = $UA->post(
+	my $response = $self->{ua}->post(
 						'http://tinyurl.com/create.php',
 						[('url',$url)]
 					);
@@ -139,7 +142,7 @@ sub _store {
 			$self->{seen}->{$tinyurl} = $url;
 		} else {
 			TRACE("Couldn't extract tinyurl");
-			#DUMP("Content",$response->content);
+			DUMP("Content",$response->content);
 		}
 	}
 
@@ -177,6 +180,9 @@ Tie::TinyURL - Tied interface to TinyURL.com
  
  my %url;
  tie %url, "Tie::TinyURL";
+ 
+ ## Explicitly set an HTTP timeout of 3 seconds
+ # tie %url, "Tie::TinyURL", "timeout" => 3;
  
  my $tinyurl = $url{"http://www.bbc.co.uk"};
  my $url = $url{$tinyurl};

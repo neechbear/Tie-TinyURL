@@ -8,7 +8,7 @@ use lib qw(./lib ../lib);
 use Tie::TinyURL qw();
 
 my %url;
-tie %url, 'Tie::TinyURL';
+tie %url, 'Tie::TinyURL', 'timeout' => 1;
 
 my $tinyurl = "http://tinyurl.com/6";
 my $url = "http://www.mapquest.com/maps/map.adp?ovi=1&mqmap.x=300&mqmap.y=75&mapdata=%252bKZmeiIh6N%252bIgpXRP3bylMaN0O4z8OOUkZWYe7NRH6ldDN96YFTIUmSH3Q6OzE5XVqcuc5zb%252fY5wy1MZwTnT2pu%252bNMjOjsHjvNlygTRMzqazPStrN%252f1YzA0oWEWLwkHdhVHeG9sG6cMrfXNJKHY6fML4o6Nb0SeQm75ET9jAjKelrmqBCNta%252bsKC9n8jslz%252fo188N4g3BvAJYuzx8J8r%252f1fPFWkPYg%252bT9Su5KoQ9YpNSj%252bmo0h0aEK%252bofj3f6vCP";
